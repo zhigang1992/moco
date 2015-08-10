@@ -6,10 +6,7 @@ import com.github.dreamhead.moco.HttpProtocolVersion;
 import com.github.dreamhead.moco.HttpRequest;
 import com.github.dreamhead.moco.extractor.CookiesRequestExtractor;
 import com.github.dreamhead.moco.extractor.FormsRequestExtractor;
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Optional;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
+import com.google.common.base.*;
 import com.google.common.collect.ImmutableMap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -24,6 +21,7 @@ import static com.google.common.collect.ImmutableMap.copyOf;
 
 @JsonDeserialize(builder = DefaultHttpRequest.Builder.class)
 public class DefaultHttpRequest implements HttpRequest {
+    public static final String SEPARATOR = ",|,";
     private final Supplier<ImmutableMap<String, String>> formSupplier;
     private final Supplier<ImmutableMap<String, String>> cookieSupplier;
 
@@ -149,7 +147,7 @@ public class DefaultHttpRequest implements HttpRequest {
     private static ImmutableMap<String, String> toQueries(final QueryStringDecoder decoder) {
         ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
         for (Map.Entry<String, List<String>> entry : decoder.parameters().entrySet()) {
-            builder.put(entry.getKey(), entry.getValue().get(0));
+            builder.put(entry.getKey(), Joiner.on(SEPARATOR).join(entry.getValue()));
         }
         return builder.build();
     }

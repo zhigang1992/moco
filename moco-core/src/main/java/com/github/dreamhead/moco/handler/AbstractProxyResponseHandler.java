@@ -6,7 +6,9 @@ import com.github.dreamhead.moco.MutableHttpResponse;
 import com.github.dreamhead.moco.handler.failover.Failover;
 import com.github.dreamhead.moco.handler.failover.FailoverStrategy;
 import com.github.dreamhead.moco.model.DefaultHttpRequest;
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -40,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.Map;
 
 import static com.github.dreamhead.moco.model.DefaultHttpResponse.newResponse;
@@ -227,7 +230,10 @@ public abstract class AbstractProxyResponseHandler extends AbstractHttpResponseH
 
         QueryStringEncoder encoder = new QueryStringEncoder(remoteUrl.get());
         for (Map.Entry<String, String> entry : request.getQueries().entrySet()) {
-            encoder.addParam(entry.getKey(), entry.getValue());
+            Iterator<String> iterator = Splitter.on(DefaultHttpRequest.SEPARATOR).split(entry.getValue()).iterator();
+            while (iterator.hasNext()) {
+                encoder.addParam(entry.getKey(), iterator.next());
+            }
         }
 
         try {

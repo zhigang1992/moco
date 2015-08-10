@@ -30,6 +30,19 @@ public class ActualHttpServerTest extends AbstractMocoHttpTest {
     }
 
     @Test
+    public void shouldPass() throws Exception {
+        HttpServer server = httpServer(12306, context("/"));
+        server.get(match(uri("/repos/.*")))
+                .response(proxy(from("/repos").to("https://api.github.com/repos"), playback("playback.response")));
+        running(server, new Runnable() {
+            @Override
+            public void run() throws Exception {
+                helper.get("http://localhost:12306/repos/dreamhead/moco/contributors?a[]=1&a[]=2");
+            }
+        });
+    }
+
+    @Test
     public void should_merge_http_server_with_any_handler_one_side() throws Exception {
         HttpServer mergedServer = ((ActualHttpServer) anotherServer).mergeHttpServer((ActualHttpServer) httpServer);
         running(mergedServer, new Runnable() {
